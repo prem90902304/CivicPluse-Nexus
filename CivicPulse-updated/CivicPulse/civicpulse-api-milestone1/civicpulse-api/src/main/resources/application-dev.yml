@@ -1,0 +1,42 @@
+spring:
+  datasource:
+    url: jdbc:postgresql://localhost:5432/civicpulse_nexus_db
+    username: civicpulse_admin
+    password: change_me_local_dev
+    driver-class-name: org.postgresql.Driver
+
+    hikari:
+      pool-name: CivicPulseHikariPool
+      maximum-pool-size: 10
+      minimum-idle: 2
+      idle-timeout: 30000
+      connection-timeout: 20000
+      max-lifetime: 1800000
+
+  jpa:
+    hibernate:
+      ddl-auto: update
+    show-sql: true
+    properties:
+      hibernate:
+        format_sql: true
+        dialect: org.hibernate.dialect.PostgreSQLDialect
+    open-in-view: false
+
+logging:
+  level:
+    org.hibernate.SQL: DEBUG
+
+app:
+  jwt:
+    secret: "dev-only-change-this-to-a-long-random-base64-secret-before-any-real-use-1234567890"
+    expiration-ms: 86400000   # 24 hours
+  cors:
+    # The frontend may use Vite's default port (5173) or the team's local port (3001).
+    # Keep this wildcard-port policy limited to the dev profile.
+    allowed-origins: "http://localhost:*,http://127.0.0.1:*"
+  sla:
+    default-hours: 72
+    escalation-check-cron: "0 */15 * * * *"   # every 15 minutes
+
+

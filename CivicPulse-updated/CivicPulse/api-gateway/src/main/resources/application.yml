@@ -1,0 +1,65 @@
+server:
+  port: 8080
+
+spring:
+  application:
+    name: api-gateway
+
+  security:
+    oauth2:
+      resourceserver:
+        jwt:
+          issuer-uri: http://localhost:8180/realms/civicpulse
+          jwk-set-uri: http://localhost:8180/realms/civicpulse/protocol/openid-connect/certs
+
+  cloud:
+    gateway:
+      mvc:
+        routes:
+          - id: service-management-service
+            uri: lb://SERVICE-MANAGEMENT-SERVICE
+            predicates:
+              - Path=/api/services/**
+
+          - id: service-management-uploads
+            uri: lb://SERVICE-MANAGEMENT-SERVICE
+            predicates:
+              - Path=/uploads/service-documents/**
+
+          - id: civicpulse-api
+            uri: lb://CIVICPULSE-NEXUS-API
+            predicates:
+              - Path=/api/**
+
+          # Complaint images are returned by the CivicPulse API as /uploads/<file>.
+          # Keep these public because an <img> request cannot attach a Bearer token.
+          - id: civicpulse-uploads
+            uri: lb://CIVICPULSE-NEXUS-API
+            predicates:
+              - Path=/uploads/**
+
+          - id: swagger
+            uri: lb://CIVICPULSE-NEXUS-API
+            predicates:
+              - Path=/swagger-ui/**,/v3/api-docs/**
+
+eureka:
+  client:
+    service-url:
+      defaultZone: http://localhost:8761/eureka/
+
+management:
+  endpoints:
+    web:
+      exposure:
+        include: "*"
+
+app:
+  cors:
+    # Dev-only gateway policy. Override with explicit trusted origins in deployment.
+    allowed-origin-patterns: "http://localhost:*,http://127.0.0.1:*"
+
+logging:
+  level:
+    org.springframework.security: TRACE
+    org.springframework.security.oauth2: TRACE

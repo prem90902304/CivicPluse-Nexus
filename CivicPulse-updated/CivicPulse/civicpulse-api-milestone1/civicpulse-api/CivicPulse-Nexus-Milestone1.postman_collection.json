@@ -1,0 +1,219 @@
+{
+  "info": {
+    "name": "CivicPulse Nexus - Milestone 1",
+    "schema": "https://schema.getpostman.com/json/collection/v2.1.0/collection.json"
+  },
+  "variable": [
+    { "key": "baseUrl", "value": "http://localhost:8080/api" },
+    { "key": "citizenToken", "value": "" },
+    { "key": "adminToken", "value": "" },
+    { "key": "officialToken", "value": "" },
+    { "key": "complaintId", "value": "" }
+  ],
+  "item": [
+    {
+      "name": "Auth",
+      "item": [
+        {
+          "name": "Register Citizen",
+          "request": {
+            "method": "POST",
+            "header": [{ "key": "Content-Type", "value": "application/json" }],
+            "url": "{{baseUrl}}/auth/register",
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"fullName\": \"Prem Sai\",\n  \"email\": \"prem.citizen@example.com\",\n  \"phone\": \"9876543210\",\n  \"password\": \"SecurePass123\"\n}"
+            }
+          }
+        },
+        {
+          "name": "Login Citizen",
+          "request": {
+            "method": "POST",
+            "header": [{ "key": "Content-Type", "value": "application/json" }],
+            "url": "{{baseUrl}}/auth/login",
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"email\": \"prem.citizen@example.com\",\n  \"password\": \"SecurePass123\"\n}"
+            }
+          }
+        }
+      ]
+    },
+    {
+      "name": "Profile",
+      "item": [
+        {
+          "name": "Get My Profile",
+          "request": {
+            "method": "GET",
+            "header": [{ "key": "Authorization", "value": "Bearer {{citizenToken}}" }],
+            "url": "{{baseUrl}}/users/me"
+          }
+        }
+      ]
+    },
+    {
+      "name": "Departments & Categories (setup as ADMIN)",
+      "item": [
+        {
+          "name": "Create Department",
+          "request": {
+            "method": "POST",
+            "header": [
+              { "key": "Content-Type", "value": "application/json" },
+              { "key": "Authorization", "value": "Bearer {{adminToken}}" }
+            ],
+            "url": "{{baseUrl}}/departments",
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"name\": \"Roads & Infrastructure\",\n  \"description\": \"Handles road, pothole, and streetlight issues\"\n}"
+            }
+          }
+        },
+        {
+          "name": "Create Category",
+          "request": {
+            "method": "POST",
+            "header": [
+              { "key": "Content-Type", "value": "application/json" },
+              { "key": "Authorization", "value": "Bearer {{adminToken}}" }
+            ],
+            "url": "{{baseUrl}}/categories",
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"name\": \"Streetlight Outage\",\n  \"description\": \"Non-functional streetlights\",\n  \"slaHours\": 48,\n  \"departmentId\": 1\n}"
+            }
+          }
+        },
+        {
+          "name": "Get All Departments",
+          "request": { "method": "GET", "url": "{{baseUrl}}/departments" }
+        },
+        {
+          "name": "Get All Categories",
+          "request": { "method": "GET", "url": "{{baseUrl}}/categories" }
+        }
+      ]
+    },
+    {
+      "name": "Complaints",
+      "item": [
+        {
+          "name": "Create Complaint (CITIZEN)",
+          "request": {
+            "method": "POST",
+            "header": [
+              { "key": "Content-Type", "value": "application/json" },
+              { "key": "Authorization", "value": "Bearer {{citizenToken}}" }
+            ],
+            "url": "{{baseUrl}}/complaints",
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"title\": \"Streetlight not working near Park Road\",\n  \"description\": \"The streetlight has been off for 5 days, causing safety issues at night.\",\n  \"categoryId\": 1,\n  \"location\": \"Park Road, Ambattur\"\n}"
+            }
+          }
+        },
+        {
+          "name": "Get My Complaints (CITIZEN)",
+          "request": {
+            "method": "GET",
+            "header": [{ "key": "Authorization", "value": "Bearer {{citizenToken}}" }],
+            "url": "{{baseUrl}}/complaints/my"
+          }
+        },
+        {
+          "name": "Get Complaint By Id",
+          "request": {
+            "method": "GET",
+            "header": [{ "key": "Authorization", "value": "Bearer {{citizenToken}}" }],
+            "url": "{{baseUrl}}/complaints/{{complaintId}}"
+          }
+        },
+        {
+          "name": "Get Complaint Timeline",
+          "request": {
+            "method": "GET",
+            "header": [{ "key": "Authorization", "value": "Bearer {{citizenToken}}" }],
+            "url": "{{baseUrl}}/complaints/{{complaintId}}/timeline"
+          }
+        },
+        {
+          "name": "Assign Complaint (ADMIN)",
+          "request": {
+            "method": "PATCH",
+            "header": [
+              { "key": "Content-Type", "value": "application/json" },
+              { "key": "Authorization", "value": "Bearer {{adminToken}}" }
+            ],
+            "url": "{{baseUrl}}/complaints/{{complaintId}}/assign",
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"departmentId\": 1,\n  \"officialId\": 2\n}"
+            }
+          }
+        },
+        {
+          "name": "Get Assigned Complaints (OFFICIAL)",
+          "request": {
+            "method": "GET",
+            "header": [{ "key": "Authorization", "value": "Bearer {{officialToken}}" }],
+            "url": "{{baseUrl}}/complaints/assigned"
+          }
+        },
+        {
+          "name": "Update Status (OFFICIAL/ADMIN)",
+          "request": {
+            "method": "PATCH",
+            "header": [
+              { "key": "Content-Type", "value": "application/json" },
+              { "key": "Authorization", "value": "Bearer {{officialToken}}" }
+            ],
+            "url": "{{baseUrl}}/complaints/{{complaintId}}/status",
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"status\": \"IN_PROGRESS\",\n  \"remarks\": \"Technician dispatched to the location\"\n}"
+            }
+          }
+        },
+        {
+          "name": "Search & Filter Complaints (ADMIN/OFFICIAL)",
+          "request": {
+            "method": "GET",
+            "header": [{ "key": "Authorization", "value": "Bearer {{adminToken}}" }],
+            "url": "{{baseUrl}}/complaints?keyword=streetlight&status=IN_PROGRESS&page=0&size=10&sort=createdAt,desc"
+          }
+        },
+        {
+          "name": "Dashboard Stats (ADMIN/OFFICIAL)",
+          "request": {
+            "method": "GET",
+            "header": [{ "key": "Authorization", "value": "Bearer {{adminToken}}" }],
+            "url": "{{baseUrl}}/complaints/dashboard/stats"
+          }
+        }
+      ]
+    },
+    {
+      "name": "Notifications",
+      "item": [
+        {
+          "name": "Get My Notifications",
+          "request": {
+            "method": "GET",
+            "header": [{ "key": "Authorization", "value": "Bearer {{citizenToken}}" }],
+            "url": "{{baseUrl}}/notifications/my"
+          }
+        },
+        {
+          "name": "Mark Notification As Read",
+          "request": {
+            "method": "PATCH",
+            "header": [{ "key": "Authorization", "value": "Bearer {{citizenToken}}" }],
+            "url": "{{baseUrl}}/notifications/1/read"
+          }
+        }
+      ]
+    }
+  ]
+}
